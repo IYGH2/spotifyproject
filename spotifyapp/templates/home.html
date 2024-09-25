@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>音楽レコメンドアプリ</title>
+
+    <!-- jQuery -->
+     <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+
+    <!-- bootstrap CSS -->
+     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+
+    <!-- bootstrap JS -->
+     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW"
+        crossorigin="anonymous"></script>
+
+    <!-- CSS文 -->
+    <style>
+        .log-window {
+            width: 100%;
+            max-height: 500px;
+            overflow-y: scroll;
+            background-color: lightgray;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .chat-text-color1 {
+            width: 100%;
+            margin-bottom: 20px; /* 各発言の間に余白を追加 */
+        }
+
+        .chat-text-color1>span {
+            display: inline-block; /* 各行を独立 */
+            color: black;
+            /* ログのテキストを白に変更 */
+            background-color: white;
+            border-radius: 10px;
+            margin: 10px;
+            padding: 10px;
+        }
+
+        .chat-text-color2 {
+            width: 100%;
+            text-align: right;
+            margin-bottom: 20px; /* 各発言の間に余白を追加 */
+        }
+
+        .chat-text-color2>span {
+            display: inline-block;
+            color: black;
+            /* ログのテキストを白に変更 */
+            background-color: lightcyan;
+            border-radius: 10px;
+            margin: 10px;
+            padding: 10px;
+            text-align: left;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-3">
+
+            </div>
+            <div class="col-md-6">
+                <h1>音楽レコメンドアプリ</h1>
+                <div class="chat-log log-window">
+                    <!-- ここにメッセージを表示 -->
+                </div>
+
+                <!-- 入力フォーム -->
+                <form action="{% url 'bot_response' %}" method="POST">
+                    {% csrf_token %}                    
+                    <div class="input-group">
+                        <button class="btn btn-success" type="submit">送信</button>
+                        <input class="input_text form-control" placeholder="入力" type="text" name="input_text"
+                            aria-describedby="basic-addon1">
+                    </div>
+                 </form>
+            </div>
+            <div class="col-md-3">
+
+            </div>
+        </div>
+    </div>
+     <!-- jQuery -->
+     <script>
+        var $input = $('.input_text'); // inputタグ内のクラス名
+        var $chatlog = $('.chat-log'); // 結果を追加していくためのdivタグ内のクラス名
+
+        // ユーザーのログを追加する関数
+        function createRow_user(text) {
+            var $row = $('<div class="chat-text-color1"><span>' + text + '</span></div>'); // クラス名を追記
+            $chatlog.append($row);
+        }
+
+        // ボットのログを追加する関数
+        function createRow_bot(text) {
+            // dataはJSON形式なので、個別の情報を取り出す
+            var trackName = text.name;
+            var trackArtist = text.artists;
+            var trackUrl = text.urls;
+
+            // ３行のテキストにまとめる
+            var formattedText = '曲名: ' + trackName + '<br>' +
+                                'アーティスト: ' + trackArtist + '<br>' +
+                                'リンク: <a href="' + trackUrl + '" target="_blank">こちら</a>'; 
+
+            var $row = $('<div class="chat-text-color2"><span>' + formattedText + '</span></div>'); // クラス名を追記
+            $chatlog.append($row);
+        }
+
+        // Ajax
+        $('form').submit(function (event) {
+            event.preventDefault();
+            var form = $(this);
+
+            // HTMLフォームの情報を設定する
+            $.ajax({
+                url: form.prop('action'), // 非同期通信するURL（/bot_response/）
+                type: form.prop('method'), // POST
+                data: form.serialize(), // データの情報
+                dataType: 'json', // データのタイプ
+            })
+                .done(function (text) {
+                    createRow_user('あなた : ' + $input.val()); // ユーザーのログを追加
+                    createRow_bot(text); // ボットのログを追加
+                    $input.val(''); // input内の要素を空にする
+
+                    // ログ枠のスクロールを最後の結果に合わせる
+                    $chatlog[0].scrollTop = $chatlog[0].scrollHeight;
+                })
+                // 送信に失敗した場合
+                .fail(function () {
+                    window.alert('もう一度やり直してください');
+                });
+        });
+    </script>
+</body>
+
+</html>
