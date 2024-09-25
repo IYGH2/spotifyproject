@@ -103,8 +103,8 @@
         function createRow_bot(text) {
             // dataはJSON形式なので、個別の情報を取り出す
             var trackName = text.name;
-            var trackArtist = text.artists;
-            var trackUrl = text.urls;
+            var trackArtist = text.artist;
+            var trackUrl = text.url;
 
             // ３行のテキストにまとめる
             var formattedText = '曲名: ' + trackName + '<br>' +

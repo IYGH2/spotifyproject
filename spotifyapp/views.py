@@ -19,36 +19,25 @@ def bot_response(request):
     client_credentials_manager = SpotifyClientCredentials(client_id=client_id, client_secret=client_secret)
     sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
 
-    # プレイリストIDを指定
-    playlist_id = '0s3tAQfErgfq0LuMZiGeKF'
+    if request.method == 'POST':
+        input_text = request.POST.get('input_text')
 
-    # プレイリストのトラックを取得
-    results = sp.playlist(playlist_id)
+        # Spotify APIで楽曲を検索
+        results = sp.search(q='track'+input_text, limit=1, offset=0, type='track', market='JP')
 
-    # 楽曲のタイトル、アーティスト名、IDをリストに格納する
-    tracks_data = []
+        # 最初のトラックを取得
+        track = results['tracks']['items'][0]
 
-    for item in results['tracks']['items']:
-        track = item['track']
-        track_data = {
-            'name': track['name'],
-            'urls': track['external_urls']['spotify'],
-            'artists': ', '.join([artist['name'] for artist in track['artists']])
-        }
-        tracks_data.append(track_data)
+        # アーティスト名、楽曲名、URLを一度に取得
+        artist_name = track['artists'][0]['name']
+        track_name = track['name']
+        track_url = track['external_urls']['spotify']
 
-    # ランダムなインデックスを取得
-    random_index = random.choice(range(len(tracks_data)))
-
-    # ランダムなトラック情報を取得
-    random_track = tracks_data[random_index]
-
-    # JSON形式に変換
-    response_data = {
-    'name': random_track['name'],
-    'urls': random_track['urls'],
-    'artists': random_track['artists']
-    }
+        # JSON形式に変換
+        response_data = {'name': track_name,
+                         'artist': artist_name,
+                         'url': track_url
+                        }
 
     return JsonResponse(response_data, safe=False)
 
