@@ -1,7 +1,9 @@
 # Gitにコミットしないファイルやフォルダ
-settings.py
 db.sqlite3
 __pycache__/
 *.pyc
 *.log
 *.env
+
+# 環境変数ファイル
+.env

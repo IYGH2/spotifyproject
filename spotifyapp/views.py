@@ -1,43 +1,50 @@
 from django.shortcuts import render
-import spotipy
-from spotipy.oauth2 import SpotifyClientCredentials
-import random
 from django.http import JsonResponse
 from django.conf import settings
-import time
-from requests.exceptions import HTTPError
+from google.cloud import language_v2
 
 
 def home(request):
     return render(request, 'home.html')
 
+def analyze_sentiment(text_content: str) -> dict:
+    """テキストの感情を分析し、結果を返す関数"""
+    client = language_v2.LanguageServiceClient()
+
+    document_type_in_plain_text = language_v2.Document.Type.PLAIN_TEXT
+
+    language_code = 'ja'
+
+    document = {
+        'content': text_content,
+        'type_': document_type_in_plain_text,
+        'language_code': language_code,
+    }
+
+    encoding_type = language_v2.EncodingType.UTF8
+
+    response = client.analyze_sentiment(
+        request={'document': document, 'encoding_type': encoding_type}
+    )
+
+    return {
+        'score': response.document_sentiment.score,
+        'magnitude': response.document_sentiment.magnitude
+    }
+
+
 def bot_response(request):
-    # クライアントIDとシークレットを設定
-    client_id = settings.SPOTIFY_CLIENT_ID
-    client_secret = settings.SPOTIFY_CLIENT_SECRET
-
-    client_credentials_manager = SpotifyClientCredentials(client_id=client_id, client_secret=client_secret)
-    sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
-
     if request.method == 'POST':
         input_text = request.POST.get('input_text')
 
-        # Spotify APIで楽曲を検索
-        results = sp.search(q='track'+input_text, limit=1, offset=0, type='track', market='JP')
-
-        # 最初のトラックを取得
-        track = results['tracks']['items'][0]
-
-        # アーティスト名、楽曲名、URLを一度に取得
-        artist_name = track['artists'][0]['name']
-        track_name = track['name']
-        track_url = track['external_urls']['spotify']
+        # 感情分析を実行
+        sentiment_result = analyze_sentiment(input_text)
 
         # JSON形式に変換
-        response_data = {'name': track_name,
-                         'artist': artist_name,
-                         'url': track_url
-                        }
+        response_data = {
+            'sentiment_score': sentiment_result['score'],
+            'sentiment_magnitude': sentiment_result['magnitude']
+        }
 
     return JsonResponse(response_data, safe=False)
 
