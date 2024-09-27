@@ -102,15 +102,12 @@
         // ボットのログを追加する関数
         function createRow_bot(text) {
             // dataはJSON形式なので、個別の情報を取り出す
-            var trackName = text.name;
-            var trackArtist = text.artist;
-            var trackUrl = text.url;
+            var sentimentScore = text.sentiment_score;
+            var sentimentMagnitude = text.sentiment_magnitude;
 
-            // ３行のテキストにまとめる
-            var formattedText = '曲名: ' + trackName + '<br>' +
-                                'アーティスト: ' + trackArtist + '<br>' +
-                                'リンク: <a href="' + trackUrl + '" target="_blank">こちら</a>'; 
-
+            // 2行のテキストにまとめる
+            var formattedText = '感情スコア: ' + sentimentScore + '<br>' +
+                                '感情の強さ: ' + sentimentMagnitude + '<br>';
             var $row = $('<div class="chat-text-color2"><span>' + formattedText + '</span></div>'); // クラス名を追記
             $chatlog.append($row);
         }
