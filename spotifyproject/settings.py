@@ -129,8 +129,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 load_dotenv()
 
 # 環境変数からAPIキーを取得
-spotify_client_id = os.getenv('SPOTIFY_CLIENT_ID')
-spotify_client_secret = os.getenv('SPOTIFY_CLIENT_SECRET')
+SPOTIFY_CLIENT_ID = os.getenv('SPOTIFY_CLIENT_ID')
+SPOTIFY_CLIENT_SECRET = os.getenv('SPOTIFY_CLIENT_SECRET')
 
 google_credentials_path = os.getenv('GOOGLE_APPLICATION_CREDENTIALS')
 

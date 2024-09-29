@@ -4,6 +4,7 @@ __pycache__/
 *.pyc
 *.log
 *.env
+.cache
 
 # 環境変数ファイル
 .env
