@@ -1,14 +1,13 @@
-from django.shortcuts import render
-from django.http import JsonResponse
-from django.http import HttpResponse
-from django.conf import settings
+from django.shortcuts import render # type: ignore
+from django.http import JsonResponse # type: ignore
+from django.http import HttpResponse # type: ignore
+from django.conf import settings # type: ignore
 from google.cloud import language_v2
 import os
-import spotipy
-from spotipy import Spotify
-from spotipy.oauth2 import SpotifyClientCredentials
-import numpy as np
-import time
+import spotipy # type: ignore
+from spotipy import Spotify # type: ignore
+from spotipy.oauth2 import SpotifyClientCredentials # type: ignore
+import numpy as np # type: ignore
 
 def home(request):
     return render(request, 'home.html')
@@ -90,21 +89,25 @@ def reply(input):
 def bot_response(request):
     if request.method == 'POST':
         input_text = request.POST.get('input_text')
-    else:
-        return HttpResponse('<h2>空のデータを受け取りました。</h2>', status=400)
+
+        # 入力されたテキストが空かどうかチェック
+        if not input_text or input_text.strip() == "":
+            return HttpResponse('<h2>テキストが入力されていません。</h2>', status=400)
     
-    # 感情分析を実行
-    sentiment_result = analyze_sentiment(input_text)
+        # 感情分析を実行
+        sentiment_result = analyze_sentiment(input_text)
 
-    # 感情スコアを元にSpotifyからレコメンド取得
-    recommend_result = reply(sentiment_result)
+        # 感情スコアを元にSpotifyからレコメンド取得
+        recommend_result = reply(sentiment_result)
 
-    # JSON形式に変換
-    response_data = {
-        'recommend_music': recommend_result['name'],
-        'recommend_artist': recommend_result['artist'],
-        'recommend_url': recommend_result['url']
-    }
+        # JSON形式に変換
+        response_data = {
+            'recommend_music': recommend_result['name'],
+            'recommend_artist': recommend_result['artist'],
+            'recommend_url': recommend_result['url']
+        }
 
-    return JsonResponse(response_data, safe=False)
+        return JsonResponse(response_data, safe=False)
+    else:
+        return HttpResponse('<h2>からのデータを受け取りました。</h2>', status=400)
 
