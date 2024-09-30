@@ -115,6 +115,12 @@
             $chatlog.append($row);
         }
 
+        // エラーメッセージを追加する関数
+        function createRow_error(message) {
+            var $row = $('<div class="chat-text-color2"><span style="color: red;">' + message + '</span></div>');
+            $chatlog.append($row);
+        }
+
         // Ajax
         $('form').submit(function (event) {
             event.preventDefault();
@@ -136,8 +142,10 @@
                     $chatlog[0].scrollTop = $chatlog[0].scrollHeight;
                 })
                 // 送信に失敗した場合
-                .fail(function () {
-                    window.alert('もう一度やり直してください');
+                .fail(function (jqXHR) {
+                    // サーバからのエラーメッセージを表示
+                    var errorMessage = jqXHR.responseJSON ? jqXHR.responseJSON.message : 'もう一度やり直してください';
+                    createRow_error(errorMessage); // エラーメッセージを表示
                 });
         });
     </script>

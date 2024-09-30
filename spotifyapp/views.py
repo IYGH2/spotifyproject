@@ -109,5 +109,5 @@ def bot_response(request):
 
         return JsonResponse(response_data, safe=False)
     else:
-        return HttpResponse('<h2>からのデータを受け取りました。</h2>', status=400)
+        return HttpResponse('<h2>空のデータを受け取りました。</h2>', status=400)
 
